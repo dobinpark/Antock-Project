@@ -1,0 +1,39 @@
+ftc:
+  api:
+    key: gE58vWNUeqZQXSzmV0Do0h9c2tWDwiEy44l9%2Bc8Z9EOMBQB8m8mGOOvj38aSvzsR66PO7LXJ8DEDGl1%2BjnWpVQ%3D%3D
+juso:
+  api:
+    key: devU01TX0FVVEgyMDI1MDMyNTE1MTgxMTExNTU3NzE=
+
+# 코드에서 사용되는 API 설정
+api:
+  antocker:
+    endpoint: http://apis.data.go.kr/1130000/MllBsDtl_2Service
+    key: gE58vWNUeqZQXSzmV0Do0h9c2tWDwiEy44l9%2Bc8Z9EOMBQB8m8mGOOvj38aSvzsR66PO7LXJ8DEDGl1%2BjnWpVQ%3D%3D
+  address:
+    endpoint: https://business.juso.go.kr/addrlink/addrLinkApi.do
+    key: devU01TX0FVVEgyMDI1MDMyNTE1MTgxMTExNTU3NzE=
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  profiles:
+    active: prod
+
+logging:
+  level:
+    root: INFO
+    com.antock.AntockProject: DEBUG
