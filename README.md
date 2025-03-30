@@ -7,9 +7,18 @@
 주요 기능 :<br>
 <h4>1. CSV 데이터 다운로드(FtcCsvDownloader)</h4>
 공정거래위원회 웹사이트에서 특정 지역(시/도, 구/군)의<br>
-통신판매사업자 CSV 파일을 다운로드 합니다.<br>
+통신판매사업자 CSV 파일을 다운로드 합니다.
+
 <h4>2. CSV 데이터 파싱(OpenCsvParser)</h4>
 다운로드 받은 CSV 파일을 파싱하여 데이터 맵 형태로 변환<br>
-<h4>외부 API 연동(FtcAntockerApiClient, JusoAddressApiClient) </h4>
+
+<h4>3. 외부 API 연동(FtcAntockerApiClient, JusoAddressApiClient)</h4>
 1) 통신판매사업자 상세 정보 API : 사업자등록번호를 이용하여 법인등록번호 등의 상세 정보를 조회<br>
-2) 주소 API : 사업장 주소를 이용하여 행정구역 코드를 조회
+2) 주소 API : 사업장 주소를 이용하여 행정구역 코드를 조회<br>
+
+<h4>4. 데이터 처리 및 가공(AntockerDataProcessor, AntockerService)</h4>
+다운로드 및 파싱된 데이터를 기반으로 외부 API를 호출하여 필요한 정보를 추가하고,<br>
+데이터베이스에 저장하기 위한 형태로 가공<br>
+
+<h4>5. 데이터베이스 저장(AntockerStorageService, AntockerRepository, Antocker)</h4>
+가공된 통신판매사업자 정보를 H2 데이터베이스에 저장
