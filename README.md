@@ -18,56 +18,6 @@
 
 ## 2. 아키텍처 (Architecture)
 
-본 프로젝트는 계층형 아키텍처를 따르며, 주요 구성 요소는 다음과 같습니다.
-
-```mermaid
-graph LR
-    Client -- HTTP Request --> AntockerController[Antocker Controller<br>(REST API)]
-    AntockerController -- Calls --> AntockerService[Antocker Service<br>(비동기 처리, 중복 제거)]
-    AntockerService -- Uses --> SeleniumCsvDownloader[Selenium CSV Downloader]
-    AntockerService -- Uses --> OpenCsvParser[OpenCSV Parser]
-    AntockerService -- Uses --> AntockerDataProcessor[Antocker Data Processor<br>(API 호출, 데이터 매핑)]
-    AntockerService -- Uses --> AntockerRepository[Antocker Repository<br>(JPA)]
-
-    SeleniumCsvDownloader -- Downloads --> ExternalSite[공정거래위원회 사이트]
-    OpenCsvParser -- Parses --> CSVFile[다운로드된 CSV]
-    AntockerDataProcessor -- Calls --> FtcAntockerApiClient[FTC API Client]
-    AntockerDataProcessor -- Calls --> JusoAddressApiClient[Juso API Client]
-    AntockerRepository -- Interacts --> H2Database[(H2 Database)]
-
-    FtcAntockerApiClient -- HTTP --> FtcApi[외부 통신판매사업자 API]
-    JusoAddressApiClient -- HTTP --> JusoApi[외부 주소 API]
-
-    subgraph "Core Logic"
-        direction TB
-        AntockerController
-        AntockerService
-        AntockerDataProcessor
-        AntockerRepository
-    end
-
-    subgraph "External Interaction"
-        direction TB
-        SeleniumCsvDownloader
-        OpenCsvParser
-        FtcAntockerApiClient
-        JusoAddressApiClient
-    end
-
-    subgraph "Data & External Systems"
-        direction TB
-        H2Database
-        ExternalSite
-        CSVFile
-        FtcApi
-        JusoApi
-    end
-
-    style H2Database fill:#ccf,stroke:#333,stroke-width:2px
-```
-
-_(위 다이어그램은 Mermaid 문법으로 작성되었으며, GitHub 등에서 렌더링됩니다.)_
-
 ### 주요 컴포넌트 설명
 
 -   **`AntockerController`**: 외부 HTTP 요청을 받아 데이터 처리 작업을 `AntockerService`에 위임합니다.
