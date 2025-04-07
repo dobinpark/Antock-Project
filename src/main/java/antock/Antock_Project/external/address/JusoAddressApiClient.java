@@ -14,6 +14,7 @@ import reactor.util.retry.Retry;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
+import antock.Antock_Project.external.address.dto.AddressResponse;
 
 @Slf4j
 @Component
@@ -47,27 +48,27 @@ public class JusoAddressApiClient implements AddressApiClient {
                         .queryParam("countPerPage", 1) // 결과 1개만 요청
                         .queryParam("keyword", address)
                         .queryParam("resultType", "json") // 응답 형식 JSON
-                        .build()
-                )
+                        .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, clientResponse ->
-                        clientResponse.bodyToMono(String.class)
-                                .defaultIfEmpty("[No Error Body]")
-                                .flatMap(errorBody -> {
-                                    log.error("Juso API call failed with status: {}, body: {}", clientResponse.statusCode(), errorBody);
-                                    // 주소 API의 에러 응답 형식에 따라 상세 에러 메시지 파싱 가능
-                                    BusinessException ex = new BusinessException(ErrorCode.API_REQUEST_FAILED,
-                                            "주소 API 요청 실패 (상태 코드: " + clientResponse.statusCode() + ", Body: " + errorBody + ")");
-                                    return Mono.error(ex);
-                                })
-                )
+                .onStatus(HttpStatusCode::isError, clientResponse -> clientResponse.bodyToMono(String.class)
+                        .defaultIfEmpty("[No Error Body]")
+                        .flatMap(errorBody -> {
+                            log.error("Juso API call failed with status: {}, body: {}", clientResponse.statusCode(),
+                                    errorBody);
+                            // 주소 API의 에러 응답 형식에 따라 상세 에러 메시지 파싱 가능
+                            BusinessException ex = new BusinessException(ErrorCode.API_REQUEST_FAILED,
+                                    "주소 API 요청 실패 (상태 코드: " + clientResponse.statusCode() + ", Body: " + errorBody
+                                            + ")");
+                            return Mono.error(ex);
+                        }))
                 // 주소 API 응답은 실제 데이터가 'results.juso[0]' 와 같이 중첩 구조일 수 있음
                 // 따라서 바로 AddressResponse.class로 변환하기 전에 중간 처리가 필요할 수 있음
                 // 여기서는 직접 매핑을 시도하고, 실제 구조에 맞게 수정 필요
                 .bodyToMono(AddressApiResponseWrapper.class) // 실제 응답 구조에 맞는 Wrapper 클래스 필요
                 .flatMap(wrapper -> { // flatMap으로 변경
-                    if (wrapper != null && wrapper.getResults() != null && wrapper.getResults().getJuso() != null && !wrapper.getResults().getJuso().isEmpty()) {
+                    if (wrapper != null && wrapper.getResults() != null && wrapper.getResults().getJuso() != null
+                            && !wrapper.getResults().getJuso().isEmpty()) {
                         // 결과가 있으면 Mono<AddressResponse> 반환
                         return Mono.just(wrapper.getResults().getJuso().get(0));
                     } else {
@@ -78,7 +79,7 @@ public class JusoAddressApiClient implements AddressApiClient {
                 })
                 // .cast(AddressResponse.class) // flatMap으로 타입이 명확해졌으므로 cast 불필요
                 .retryWhen(Retry.backoff(3, Duration.ofSeconds(1))
-                        .filter(throwable -> throwable instanceof IOException || throwable instanceof BusinessException))
+                        .filter(throwable -> throwable instanceof IOException))
                 .blockOptional(Duration.ofSeconds(10)); // 이제 Mono<AddressResponse>에 대해 blockOptional 호출
     }
 

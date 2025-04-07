@@ -24,7 +24,7 @@ class AntockerRepositoryTest {
         // Given
         Antocker antocker = Antocker.builder()
                 .companyName("테스트 상호")
-                .bizRegNum("1234567890")
+                .businessRegistrationNumber("1234567890")
                 .address("테스트 주소")
                 .build();
 
@@ -35,7 +35,7 @@ class AntockerRepositoryTest {
         // Then
         assertThat(savedAntocker.getId()).isNotNull();
         assertThat(savedAntocker.getCompanyName()).isEqualTo("테스트 상호");
-        assertThat(savedAntocker.getBizRegNum()).isEqualTo("1234567890");
+        assertThat(savedAntocker.getBusinessRegistrationNumber()).isEqualTo("1234567890");
         assertThat(savedAntocker.getAddress()).isEqualTo("테스트 주소");
 
         Antocker foundAntocker = antockerRepository.findById(savedAntocker.getId()).orElse(null);
@@ -48,12 +48,12 @@ class AntockerRepositoryTest {
         // Given
         Antocker antocker1 = Antocker.builder()
                 .companyName("테스트 상호1")
-                .bizRegNum("1111111111")
+                .businessRegistrationNumber("1111111111")
                 .address("테스트 주소1")
                 .build();
         Antocker antocker2 = Antocker.builder()
                 .companyName("테스트 상호2")
-                .bizRegNum("2222222222")
+                .businessRegistrationNumber("2222222222")
                 .address("테스트 주소2")
                 .build();
         antockerRepository.saveAll(List.of(antocker1, antocker2));

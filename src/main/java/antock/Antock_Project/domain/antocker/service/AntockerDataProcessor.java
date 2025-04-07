@@ -33,48 +33,49 @@ public class AntockerDataProcessor {
 
         log.info("데이터 처리 시작 (Thread: {}): 상호 = {}", Thread.currentThread().getName(), companyName); // 스레드 이름 로깅
 
-        // 1. 통신판매사업자 등록상세 API 호출 (법인등록번호 조회)
-        AntockerDetailResponse antockerDetailResponse = antockerApiClient.getAntockerDetail(bizRegNum);
-        String crpNo = null;
-        if (antockerDetailResponse != null && antockerDetailResponse.getResponse() != null
-                && antockerDetailResponse.getResponse().getBody() != null
-                && antockerDetailResponse.getResponse().getBody().getItems() != null
-                && antockerDetailResponse.getResponse().getBody().getItems().getItem() != null
-                && antockerDetailResponse.getResponse().getBody().getItems().getItem().length > 0) {
-            crpNo = antockerDetailResponse.getResponse().getBody().getItems().getItem()[0].getCrpno();
+        // 1. 통신판매사업자 등록상세 API 호출 (인터페이스 메소드명 사용 및 Optional 처리)
+        Optional<AntockerDetailResponse> detailOptional = antockerApiClient.fetchAntockerDetails(bizRegNum);
+        String crpNo = detailOptional
+                .map(AntockerDetailResponse::getResponse) // null 체크 포함
+                .map(AntockerDetailResponse.Response::getBody)
+                .map(AntockerDetailResponse.Body::getItems)
+                .map(AntockerDetailResponse.Items::getItem)
+                .filter(items -> items.length > 0) // 배열이 비어있지 않은지 확인
+                .map(items -> items[0].getCrpno()) // 첫 번째 item의 crpno 가져오기
+                .orElse(null); // 값이 없으면 null
+
+        if (crpNo != null) {
             log.info("통신판매사업자 등록상세 API 응답 (Thread: {}): 법인등록번호 = {}", Thread.currentThread().getName(), crpNo); // 스레드
                                                                                                                 // 이름 로깅
         } else {
             log.warn("통신판매사업자 등록상세 API 응답 오류 또는 데이터 없음 (Thread: {})", Thread.currentThread().getName()); // 스레드 이름 로깅
         }
 
-        // 2. 공공주소 API 호출 (행정구역코드 조회)
-        AddressResponse addressResponse = addressApiClient.getAddressInfo(address);
-        String admCd = null;
-        if (addressResponse != null && addressResponse.getResults() != null
-                && addressResponse.getResults().getJuso() != null
-                && addressResponse.getResults().getJuso().length > 0) {
-            admCd = addressResponse.getResults().getJuso()[0].getAdmCd();
+        // 2. 공공주소 API 호출 (인터페이스 메소드명 사용 및 Optional 처리)
+        Optional<AddressResponse> addressOptional = addressApiClient.fetchAddressInfo(address);
+        String admCd = addressOptional
+                .map(AddressResponse::getResults) // Results 객체 가져오기
+                .map(AddressResponse.Results::getJuso) // Juso 배열 가져오기
+                .filter(jusoArray -> jusoArray != null && jusoArray.length > 0) // 배열 null 및 비어있는지 확인
+                .map(jusoArray -> jusoArray[0].getAdmCd()) // 첫 번째 Juso 객체의 admCd 가져오기
+                .orElse(null); // 값이 없으면 null
+
+        if (admCd != null) {
             log.info("공공주소 API 응답 (Thread: {}): 행정구역코드 = {}", Thread.currentThread().getName(), admCd); // 스레드 이름 로깅
         } else {
             log.warn("공공주소 API 응답 오류 또는 데이터 없음 (Thread: {})", Thread.currentThread().getName()); // 스레드 이름 로깅
         }
 
-        // 3. Antocker 엔티티 생성 및 데이터 매핑
+        // 3. Antocker 엔티티 생성 및 데이터 매핑 (엔티티 필드명과 일치하도록 수정)
         Antocker antocker = Antocker.builder()
                 .companyName(companyName)
-                .bizRegNum(bizRegNum)
-                .crpRegNum(crpNo)
+                .businessRegistrationNumber(bizRegNum) // 필드명 businessRegistrationNumber
+                .corporateRegistrationNumber(crpNo) // 필드명 corporateRegistrationNumber
                 .address(address)
-                .admCd(admCd)
+                .administrativeCode(admCd) // 필드명 administrativeCode
                 .build();
 
         log.info("데이터 처리 완료 (Thread: {}): 상호 = {}", Thread.currentThread().getName(), companyName); // 스레드 이름 로깅
         return CompletableFuture.completedFuture(antocker); // CompletableFuture 반환
-    }
-
-    public Optional<Antocker> processData(Map<String, String> csvData) {
-        // Implementation of processData method
-        return Optional.empty(); // Placeholder return, actual implementation needed
     }
 }

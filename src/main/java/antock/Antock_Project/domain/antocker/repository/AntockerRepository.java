@@ -18,6 +18,9 @@ public interface AntockerRepository extends JpaRepository<Antocker, Long> {
      */
     Optional<Antocker> findByBusinessRegistrationNumber(String businessRegistrationNumber);
 
+    // 여러 사업자등록번호로 Antocker 리스트 조회
+    List<Antocker> findByBusinessRegistrationNumberIn(List<String> businessNumbers);
+
     // 필요에 따라 다른 조회 메소드 추가 가능 (예: 상호명으로 검색, 특정 조건으로 목록 조회 등)
     // List<Antocker> findByCompanyNameContaining(String companyName);
 }
