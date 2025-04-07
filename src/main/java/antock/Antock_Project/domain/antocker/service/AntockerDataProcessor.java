@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -70,5 +71,10 @@ public class AntockerDataProcessor {
 
         log.info("데이터 처리 완료 (Thread: {}): 상호 = {}", Thread.currentThread().getName(), companyName); // 스레드 이름 로깅
         return CompletableFuture.completedFuture(antocker); // CompletableFuture 반환
+    }
+
+    public Optional<Antocker> processData(Map<String, String> csvData) {
+        // Implementation of processData method
+        return Optional.empty(); // Placeholder return, actual implementation needed
     }
 }
